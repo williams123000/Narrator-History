@@ -101,15 +101,6 @@ statusGoalHeroLiberatesHostage = False # Variable global para la meta secundaria
 Characters = loadSettigs() # Carga los personajes desde el archivo JSON
 clear_file("History.txt") # Limpia el contenido del archivo History.txt
 
-# Función imprimir los detalles de los personajes 
-def printCharacters():
-    for Character_ in Characters:
-        Character(Character_).print_details()
-
-print(colorama.Fore.CYAN + "Personajes: ")
-printCharacters() # Imprime los detalles de los personajes
-
-
 
 # Función para realizar la acción de la historia "Loves"
 def storyActionLoves(CharacterThatLoves: Character, CharacterThatIsLoved: Character):
@@ -160,7 +151,7 @@ def storyMakesPrisioner (Hostage: Character, Kidnapping: Character):
     def Preconditions():
         # Validar si los personajes están en la misma ubicación o no
         if not locationValidation(Hostage.Location, Kidnapping.Location):
-            print(colorama.Fore.RED + "- Precondiciones, los personajes no están en el mismo lugar")
+            print(colorama.Fore.RED + "- Precondiciones no validadas, los personajes no están en el mismo lugar")
             return
 
     def Postconditions():
@@ -236,9 +227,6 @@ def storyActionMovesToTheSameLocation(CharacterThatMoves: Character, CharacterSt
     Postconditions()
     Template()
 
-# NOTA SI EL PERSONAJE SECUESTRADOR ES EL GUARDIAN DEL LAGO EN LOS TEMPLATES DE IR CON EL INFORMANTE PARA CONSEGUIR LO QUE PIDE
-# EL QUE CUBRE LO DESEADO ES EL GUARDIAN DEL LAGO POR DEFAULT.
-
 # Función para realizar la acción de la historia "AskForMagicGrass"
 def storyActionAskForMagicGrass(Hero: Character, Informant: Character):
     def Template():
@@ -252,58 +240,6 @@ def storyActionAskForMagicGrass(Hero: Character, Informant: Character):
     
     def Postconditions():
         Hero.ObjectThatTheCharacterOwns = "magic grass"
-
-    Preconditions()
-    Postconditions()
-    Template()
-
-# Función para realizar la acción de la historia "AskForForetellingBones"
-def storyActionAskForForetellingBones(Hero: Character, Informant: Character):
-    def Template():
-        Text = f"The {Informant.Name} agreed to provide the information in exchange for a cluster of foretelling bones.\nThe {Hero.Name} went in search of the bones but the guardian of the forest barred { "Her" if Hero.Gender == "female " else "Him" } from entering.\nThe {Hero.Name} sang an ancestral song of supplication and the guardian of the forest allowed {"Her" if Hero.Gender == "female " else "Him" } to enter.\nThe {Hero.Name} took a bunch of foretelling bones.\nThe {Hero.Name} returned with the {Informant.Name}."
-        saveFileHistory(Text)
-
-    def Preconditions():
-        if Informant.ObjectThatTheCharacterOwns != "foretelling bones":
-            print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no tiene la hierba mágica")
-            return
-
-    def Postconditions():
-        Hero.ObjectThatTheCharacterOwns = "foretelling bones"
-
-    Preconditions()
-    Postconditions()
-    Template()
-
-def storyActionAskForVeneratedBook(Hero: Character, Informant: Character):
-    def Template():
-        Text = f"The {Informant.Name} agreed to provide the information in exchange for a venerated book.\nThe {Hero.Name} went in search of the book but the guardian of the temple barred { "Her" if Hero.Gender == "female" else "Him" } from entering.\nThe {Hero.Name} sang an ancestral song of supplication and the guardian of the temple allowed {"Her" if Hero.Gender == "female" else "Him" } to enter.\nThe {Hero.Name} took the venerated book.\nThe {Hero.Name} returned with the {Informant.Name}."
-        saveFileHistory(Text)
-
-    def Preconditions():
-        if Informant.ObjectThatTheCharacterOwns != "venerated book":
-            print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no tiene el libro venerado")
-            return
-        
-    def Postconditions():
-        Hero.ObjectThatTheCharacterOwns = "venerated book"
-
-    Preconditions()
-    Postconditions()
-    Template()
-
-def storyActionAskForMagicSword(Hero: Character, Informant: Character):
-    def Template():
-        Text = f"The {Informant.Name} agreed to provide the information in exchange for a magic sword.\nThe {Hero.Name} went in search of the sword but the guardian of the mountain barred { "Her" if Hero.Gender == "female" else "Him" } from entering.\nThe {Hero.Name} sang an ancestral song of supplication and the guardian of the mountain allowed {"Her" if Hero.Gender == "female" else "Him" } to enter.\nThe {Hero.Name} took the magic sword.\nThe {Hero.Name} returned with the {Informant.Name}."
-        saveFileHistory(Text)
-
-    def Preconditions():
-        if Informant.ObjectThatTheCharacterOwns != "magic sword":
-            print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no tiene la espada mágica")
-            return
-        
-    def Postconditions():
-        Hero.ObjectThatTheCharacterOwns = "magic sword"
 
     Preconditions()
     Postconditions()
@@ -327,31 +263,29 @@ def storyActionGivesReward(Hero: Character, Informant: Character):
     Postconditions()
     
 # Función para realizar la meta de la historia "HeroRewardsInformant"
-def goalHeroRewardsInformant(Hero: Character, Informant: Character):
-    #global Hero
-    #global Informant
+def goalHeroRewardsInformant():
+    global Hero
+    global Informant
+
     def Preconditions():
+        global Informant
+
         if Informant.Name == "sorcerer":
-            print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es el hechicero")
             storyActionAskForMagicGrass(Hero, Informant)
             return
         elif Informant.Name == "soothsayer":
             print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es el adivino")
-            storyActionAskForForetellingBones(Hero, Informant)
             return
-        elif Informant.Name == "priest": # NOTA EL PERSONAJE SACERDOTE NUNCA CUMPLE CON LAS CONDICIONES
+        elif Informant.Name == "priest":
             print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es el sacerdote")
-            storyActionAskForVeneratedBook(Hero, Informant)
             return
         else:
-            print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es la anciana misteriosa")
-            storyActionAskForMagicSword(Hero, Informant)
+            print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no es el hechicero, el adivino o el sacerdote")
             return
         
-        
     def Plan():
-        #global Hero
-        #global Informant
+        global Hero
+        global Informant
         global statusGoalHeroRewardsInformant
 
         storyActionGivesReward(Hero, Informant)
@@ -401,11 +335,9 @@ def storyActionGetsInstructionsToRescueHostageFrom (Hero: Character, Informant: 
 def goalHeroFindsInformant ():
     global Hero
 
-
     def Preconditions():
         # SYS: * 
         global Informant
-        global Hostage
 
         if Informant != None:
             print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante existe")
@@ -414,16 +346,7 @@ def goalHeroFindsInformant ():
         print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no existe")
 
         Informant = defineCharacter(Characters, "ReliableSourceOfInformation", "yes")
-
         Informant = Character(Informant)
-
-        # NOTA EL INFORMANTE NO PUEDE SER EL REHEN (LA VIEJA MISTERIOSA PUEDE APAECER COMO INFORMANTE Y REHEN)
-        if Informant.Name == Hostage.Name:
-            print(colorama.Fore.RED + "- - - El informante no puede ser el rehén")
-            Informant = defineCharacter(Characters, "ReliableSourceOfInformation", "yes")
-
-            Informant = Character(Informant)
-    
 
         print(colorama.Fore.GREEN + "- - - Informante definido: " + Informant.Name)
 
@@ -435,7 +358,7 @@ def goalHeroFindsInformant ():
             # GOAL:
             print(colorama.Fore.YELLOW + "- ")
             Informant.print_details()
-            goalHeroRewardsInformant(Hero, Informant)
+            goalHeroRewardsInformant()
 
     def Plan():
         global Hero
@@ -581,9 +504,6 @@ def goalHeroDecideRescueHostage(Characters):
         Hostage = Character(Hostage)
         print (colorama.Fore.GREEN + "- - - Rehen definido: " + Hostage.Name)
 
-        # Eliminar al rehén de los personajes
-        Characters.remove(Hostage.__dict__)
-
         InitTextHistory()
 
         # ACT:
@@ -651,39 +571,24 @@ def VoiceText(Text):
 # Función para mejorar la historia con IA usando la API de Llama3
 def UpgradeIA(Text):
 
-        # URL del servidor de LM Studio
-    url = "http://localhost:1234/v1/chat/completions"
-
-    # Encabezados de la solicitud
+    global api_key
+    print(api_key)
+    url = "https://llama-3.p.rapidapi.com/llama3"
     headers = {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "x-rapidapi-host": "llama-3.p.rapidapi.com",
+        "x-rapidapi-key": api_key
     }
 
-    Text_History = "Mejora el siguiente texto manteniendo la historia intacta, pero optimizando la fluidez para evitar la repetición innecesaria de personajes. Reemplaza o reformula oraciones para que los personajes no se mencionen tantas veces seguidas, sin agregar nuevos elementos ni alterar el contenido original es decir no alterar la historia, tampoco pierdas el contexto y su idea IMPORTANTE: SOLO DAME LA NUEVA HISTORIA, NO AGREGUES NADA MÁS: " + Text 
-
-    # Cuerpo de la solicitud
+    Text_History = "Mejora el siguiente texto manteniendo la historia intacta, pero optimizando la fluidez para evitar la repetición innecesaria de personajes. Reemplaza o reformula oraciones para que los personajes no se mencionen tantas veces seguidas, sin agregar nuevos elementos ni alterar el contenido original IMPORTANTE: SOLO DAME LA NUEVA HISTORIA, NO AGREGUES NADA MÁS: " + Text 
     data = {
-        "model": "lmstudio-community/gemma-2-2b-it-GGUF/gemma-2-2b-it-Q4_K_M.gguf",
-        "messages": [
-            {"role": "system", "content": "Eres un mejorador de historias."},
-            {"role": "user", "content": Text_History},
-        ],
-        "temperature": 0.7,
-        "max_tokens": -1,
-        "stream": False
+        "prompt": Text_History,
+        "system_prompt": "Eres un mejorador de historias"
     }
 
-    # Realizar la solicitud POST
     response = requests.post(url, headers=headers, json=data)
 
-    # Mostrar el resultado
-    if response.status_code == 200:
-        completion = response.json()
-        return completion['choices'][0]['message']['content']
-    else:
-        print(f"Error: {response.status_code}")
-        return "Error"
-
+    return response.json()['msg']
 
 ##print(response.json())
 

@@ -6,9 +6,30 @@ import colorama # Importa la librería colorama para darle color al texto
 import pyttsx3 # Importa la librería pyttsx3 para convertir texto a voz
 from dotenv import load_dotenv # Importa la función load_dotenv de la librería dotenv para cargar las variables de entorno
 import os # Importa la librería os para acceder a las variables de entorno del sistema
+import logging # Importa la librería logging para guardar logs en un archivo de texto
+import datetime # Importa la librería datetime para trabajar con fechas y horas
 
 import requests # Importa la librería requests para hacer solicitudes HTTP
 import argparse # Importa la librería argparse para crear un objeto ArgumentParser
+
+
+# Crear el directorio de logs si no existe
+log_directory = 'logs'
+os.makedirs(log_directory, exist_ok=True)
+# Generar un nombre de archivo único basado en la fecha y hora actuales
+log_filename = os.path.join(log_directory, datetime.datetime.now().strftime("Narrator_%Y%m%d_%H%M%S.log"))
+
+# Configuración de los logs para guardar la información en un archivo de texto
+logging.basicConfig(
+    filename=log_filename,
+    filemode='w',
+    level=logging.DEBUG,
+    format='%(asctime)s - %(message)s',
+    encoding='utf-8'
+)
+
+logging.info("Inicio de la ejecución del programa History.py")
+logging.info("Programa escrito por Williams Chan Pescador")
 
 
 # Crear un objeto ArgumentParser para manejar los argumentos de la línea de comandos
@@ -26,11 +47,11 @@ args = parser.parse_args() # Parsear los argumentos
 
 colorama.init() # Inicializa colorama para darle color al texto
 
-load_dotenv() # Carga las variables de entorno del archivo .env
+#load_dotenv() # Carga las variables de entorno del archivo .env
 
-api_key = os.getenv('API_KEY') # Obtiene el valor de la variable de entorno API_KEY
+#api_key = os.getenv('API_KEY') # Obtiene el valor de la variable de entorno API_KEY
 
-print(colorama.Fore.CYAN + "API_KEY: " + api_key)
+#print(colorama.Fore.CYAN + "API_KEY: " + api_key)
 
 ## 
 
@@ -91,6 +112,7 @@ Hero = None # Variable global para el héroe
 Hostage = None # Variable global para el rehén
 Kidnapping = None # Variable global para el secuestrador
 Informant = None # Variable global para el informante
+Guardian = None # Variable global para el guardián
 
 statusGoalHeroDecideRescueHostage = False # Variable global para la meta conductora
 statusGoalKidnappingHostage = False # Variable global para la meta secundaria
@@ -98,7 +120,10 @@ statusGoalHeroRewardsInformant = False # Variable global para la meta secundaria
 statusGoalHeroFindsInformant = False # Variable global para la meta secundaria
 statusGoalHeroLiberatesHostage = False # Variable global para la meta secundaria
 
+
+
 Characters = loadSettigs() # Carga los personajes desde el archivo JSON
+logging.info("Personajes instanciados correctamente")
 clear_file("History.txt") # Limpia el contenido del archivo History.txt
 
 # Función imprimir los detalles de los personajes 
@@ -106,8 +131,28 @@ def printCharacters():
     for Character_ in Characters:
         Character(Character_).print_details()
 
+# Función para obtener los detalles de los personajes en lugar de imprimirlos
+def getCharactersDetails():
+    details = []
+    for Character_ in Characters:
+        char = Character(Character_)
+        details.append(f"\nName: {char.Name}\n"
+                       f"Personality: {char.Personality}\n"
+                       f"Location: {char.Location}\n"
+                       f"Gender: {char.Gender}\n"
+                       f"Emotion Towards Other Character: {char.EmotionTowardsOtherCharacter}\n"
+                       f"Character Who Is The Object Of The Emotion: {char.CharacterWhoIsTheObjectOfTheEmotion}\n"
+                       f"Captivity Status: {char.CaptivityStatus}\n"
+                       f"Reliable Source Of Information: {char.ReliableSourceOfInformation}\n"
+                       f"Object That The Character Owns: {char.ObjectThatTheCharacterOwns}\n"
+                       f"Location That The Character Learns: {char.LocationThatTheCharacterLearns}\n"
+                       f"Instructions To Perform: {char.InstructionsToPerform}\n")
+    return "\n".join(details)
+
 print(colorama.Fore.CYAN + "Personajes: ")
 printCharacters() # Imprime los detalles de los personajes
+logging.info("Personajes: ")
+logging.info(getCharactersDetails())
 
 
 
@@ -123,19 +168,28 @@ def storyActionLoves(CharacterThatLoves: Character, CharacterThatIsLoved: Charac
         # Construir el texto NOTE: Elige una plantilla aleatoria
         Text = f"{DictTemplate['Start']}{CharacterThatLoves.Name} {random.choice(DictTemplate['End'])}{CharacterThatIsLoved.Name}."
         saveFileHistory(Text) # Guarda el texto en el archivo History.txt
+        logging.info("Texto de la historia: " + Text)
 
     # Precondiciones de la acción "Loves"
     def Preconditions():
+        logging.info("Sin precondiciones de la acción Loves")
         pass
 
     # Postcondiciones de la acción "Loves"
     def Postconditions():
+        logging.info("Postcondiciones de la acción Loves")
+        logging.info("Personaje que ama: " + CharacterThatLoves.Name)
+        logging.info("Personaje que es amado: " + CharacterThatIsLoved.Name)
         CharacterThatLoves.EmotionTowardsOtherCharacter = "Love"
         CharacterThatIsLoved.CharacterWhoIsTheObjectOfTheEmotion = "Love"
+        logging.info("Emoción del personaje que ama: " + CharacterThatLoves.EmotionTowardsOtherCharacter)
+        logging.info("Personaje que es amado: " + CharacterThatIsLoved.CharacterWhoIsTheObjectOfTheEmotion)
 
-    Template() # Llama a la plantilla de la acción "Loves"
     Preconditions() # Llama a las precondiciones de la acción "Loves"
+    Template() # Llama a la plantilla de la acción "Loves"
+    logging.info("Precondiciones validadas de la acción Loves")
     Postconditions() # Llama a las postcondiciones de la acción "Loves"
+    logging.info("Postcondiciones validadas de la acción Loves")
 
     #CharacterThatLoves.print_details()
     #CharacterThatIsLoved.print_details()
@@ -202,6 +256,16 @@ def goalKidnappingHostage(Hostage , Characters):
             return
         
         print(colorama.Fore.RED + "- Precondiciones no validadas, el secuestrador no existe")
+
+        global Guardian
+        Guardian = defineCharacter(Characters, "Location", "sacred lake")
+        Guardian = Character(Guardian)
+
+        print(colorama.Fore.RED + "- Guardian definido: " + Guardian.Name)
+        
+        # Remover el guardián de los personajes
+        Characters.remove(Guardian.__dict__)
+
 
         Kidnapping = defineCharacter(Characters, "Personality", "horrendous")
         Kidnapping = Character(Kidnapping)
@@ -331,6 +395,8 @@ def goalHeroRewardsInformant(Hero: Character, Informant: Character):
     #global Hero
     #global Informant
     def Preconditions():
+        # SYS:
+
         if Informant.Name == "sorcerer":
             print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es el hechicero")
             storyActionAskForMagicGrass(Hero, Informant)
@@ -343,8 +409,8 @@ def goalHeroRewardsInformant(Hero: Character, Informant: Character):
             print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es el sacerdote")
             storyActionAskForVeneratedBook(Hero, Informant)
             return
-        else:
-            print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es la anciana misteriosa")
+        elif Informant.Name == "old mysterious lady":
+            print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante no es el hechicero, adivino o sacerdote")
             storyActionAskForMagicSword(Hero, Informant)
             return
         
@@ -401,7 +467,6 @@ def storyActionGetsInstructionsToRescueHostageFrom (Hero: Character, Informant: 
 def goalHeroFindsInformant ():
     global Hero
 
-
     def Preconditions():
         # SYS: * 
         global Informant
@@ -412,26 +477,30 @@ def goalHeroFindsInformant ():
             return
 
         print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no existe")
+        
 
         Informant = defineCharacter(Characters, "ReliableSourceOfInformation", "yes")
 
         Informant = Character(Informant)
 
         # NOTA EL INFORMANTE NO PUEDE SER EL REHEN (LA VIEJA MISTERIOSA PUEDE APAECER COMO INFORMANTE Y REHEN)
-        if Informant.Name == Hostage.Name:
+        """if Informant.Name == Hostage.Name:
             print(colorama.Fore.RED + "- - - El informante no puede ser el rehén")
             Informant = defineCharacter(Characters, "ReliableSourceOfInformation", "yes")
 
-            Informant = Character(Informant)
+            Informant = Character(Informant)"""
     
 
         print(colorama.Fore.GREEN + "- - - Informante definido: " + Informant.Name)
 
+        # Eliminar al informante de los personajes
+        Characters.remove(Informant.__dict__)
+
         # ACT:
         storyActionMovesToTheSameLocation(Hero, Informant)
 
-        
-        if Informant.Personality == "mean" or Informant.Personality == "horrendous":
+        # NOTA: SE AGREGO FIENDLY PARA QUE EL SACERDOTE TAMBIEN LANZE LA ACCION DE DAR RECOMPENSA
+        if Informant.Personality == "mean" or Informant.Personality == "horrendous" or Informant.Personality == "friendly":
             # GOAL:
             print(colorama.Fore.YELLOW + "- ")
             Informant.print_details()
@@ -543,6 +612,9 @@ def goalHeroLiberatesHostage ():
 
 # Función para realizar la meta conductora de la historia "HeroDecideRescueHostage"
 def goalHeroDecideRescueHostage(Characters):
+
+    logging.info("Meta conductora de la historia: Heroe decide rescatar al rehen")
+
     def InitTextHistory():
         global Hero
         global Hostage
@@ -551,23 +623,30 @@ def goalHeroDecideRescueHostage(Characters):
         if Selection == "LocationHero":
             TextLocationHero = f"The {Hero.Name} was at the {Hero.Location}"
             saveFileHistory(TextLocationHero)
+            logging.info("Texto de la historia: " + TextLocationHero)
             TextPersonalityHostage = f"and The {Hostage.Name} was a {Hostage.Personality} person."
             saveFileHistory(TextPersonalityHostage)
+            logging.info("Texto de la historia: " + TextPersonalityHostage)
         elif Selection == "PersonalityHero":
             TextPersonalityHero = f"The {Hero.Name} was a {Hero.Personality} person"
             saveFileHistory(TextPersonalityHero)
+            logging.info("Texto de la historia: " + TextPersonalityHero)
             TextLocationHostage = f"and The {Hostage.Name} was at the {Hostage.Location}."
             saveFileHistory(TextLocationHostage)
+            logging.info("Texto de la historia: " + TextLocationHostage)
 
     def Preconditions():
         # SYS:
         global Hero
         global Hostage
 
+        logging.info("Validar precondiciones: ")
+        logging.info(f"\tInstanciar personajes - Character-Hero y Character-Hostage")
         print(colorama.Fore.YELLOW +  "- Validar precondiciones ")
 
         if Hero != None and Hostage != None:
             print(colorama.Fore.GREEN + "Precondiciones validadas, los personajes existen")
+            logging.info("Precondiciones validadas, los personajes existen")
             return
         
         print (colorama.Fore.RED + "- - Precondiciones no validadas, los personajes no existen")
@@ -581,20 +660,30 @@ def goalHeroDecideRescueHostage(Characters):
         Hostage = Character(Hostage)
         print (colorama.Fore.GREEN + "- - - Rehen definido: " + Hostage.Name)
 
+        logging.info("Personajes instanciados correctamente")
+        logging.info("Heroe: " + Hero.Name)
+        logging.info("Rehen: " + Hostage.Name)
+
         # Eliminar al rehén de los personajes
         Characters.remove(Hostage.__dict__)
 
+        logging.info("Se incializa el texto de la historia")
+
+
         InitTextHistory()
 
-        # ACT:
+        # ACT Character hero loves Character hostage:
+        logging.info(f"\tAcción de la historia: Loves")
         storyActionLoves(Hero, Hostage)
 
-        # GOAL:
+        # GOAL KidnappingHostage:
+        logging.info(f"\tMeta de la historia: KidnappingHostage")
         goalKidnappingHostage(Hostage, Characters)
 
     def Plan():
         # Plan:
         # GOAL: The Hero liberates the Hostage
+        logging.info("Planificación de la meta de la historia: El heroe decide rescatar al rehen")
         global statusGoalHeroDecideRescueHostage
         global statusGoalKidnappingHostage
         
@@ -602,12 +691,15 @@ def goalHeroDecideRescueHostage(Characters):
             print(colorama.Fore.YELLOW + "- Planificar rescate")
             goalHeroLiberatesHostage()
             statusGoalHeroDecideRescueHostage = True
+            logging.info("Meta de la historia completada: El heroe decide rescatar al rehen")
 
         pass
 
     print (colorama.Fore.RED + "* Instanciar meta principal")
     Preconditions()
+    logging.info("Precondiciones validadas de la meta conductora El heroe decide rescatar al rehen")
     Plan()
+    
 
 # Llama a la función para realizar la meta conductora de la historia "HeroDecideRescueHostage"
 goalHeroDecideRescueHostage(Characters)

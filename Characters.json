@@ -72,7 +72,7 @@
         "CharacterWhoIsTheObjectOfTheEmotion": "none",
         "Personality": "friendly",
         "CaptivityStatus": "free",
-        "ReliableSourceOfInformation": "no",
+        "ReliableSourceOfInformation": "yes",
         "ObjectThatTheCharacterOwns": "none",
         "LocationThatTheCharacterLearns": "none",
         "InstructionsToPerform": "none"
@@ -111,7 +111,7 @@
         "CharacterWhoIsTheObjectOfTheEmotion": "none",
         "Personality": "friendly",
         "CaptivityStatus": "free",
-        "ReliableSourceOfInformation": "yes",
+        "ReliableSourceOfInformation": "no",
         "ObjectThatTheCharacterOwns": "none",
         "LocationThatTheCharacterLearns": "none",
         "InstructionsToPerform": "none"
