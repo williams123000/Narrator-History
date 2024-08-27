@@ -17,13 +17,13 @@ import argparse # Importa la librería argparse para crear un objeto ArgumentPar
 log_directory = 'logs'
 os.makedirs(log_directory, exist_ok=True)
 # Generar un nombre de archivo único basado en la fecha y hora actuales
-log_filename = os.path.join(log_directory, datetime.datetime.now().strftime("Narrator_%Y%m%d_%H%M%S.log"))
+log_filename = os.path.join(log_directory, datetime.datetime.now().strftime("History_%Y%m%d_%H%M%S.log"))
 
 # Configuración de los logs para guardar la información en un archivo de texto
 logging.basicConfig(
     filename=log_filename,
     filemode='w',
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s - %(message)s',
     encoding='utf-8'
 )
@@ -149,8 +149,8 @@ def getCharactersDetails():
                        f"Instructions To Perform: {char.InstructionsToPerform}\n")
     return "\n".join(details)
 
-print(colorama.Fore.CYAN + "Personajes: ")
-printCharacters() # Imprime los detalles de los personajes
+#print(colorama.Fore.CYAN + "Personajes: ")
+#printCharacters() # Imprime los detalles de los personajes
 logging.info("Personajes: ")
 logging.info(getCharactersDetails())
 
@@ -177,17 +177,16 @@ def storyActionLoves(CharacterThatLoves: Character, CharacterThatIsLoved: Charac
 
     # Postcondiciones de la acción "Loves"
     def Postconditions():
-        logging.info("Postcondiciones de la acción Loves")
+        logging.info("Validar postcondiciones de la acción Loves")
         logging.info("Personaje que ama: " + CharacterThatLoves.Name)
         logging.info("Personaje que es amado: " + CharacterThatIsLoved.Name)
         CharacterThatLoves.EmotionTowardsOtherCharacter = "Love"
-        CharacterThatIsLoved.CharacterWhoIsTheObjectOfTheEmotion = "Love"
+        CharacterThatIsLoved.CharacterWhoIsTheObjectOfTheEmotion = "Loved"
         logging.info("Emoción del personaje que ama: " + CharacterThatLoves.EmotionTowardsOtherCharacter)
         logging.info("Personaje que es amado: " + CharacterThatIsLoved.CharacterWhoIsTheObjectOfTheEmotion)
 
     Preconditions() # Llama a las precondiciones de la acción "Loves"
     Template() # Llama a la plantilla de la acción "Loves"
-    logging.info("Precondiciones validadas de la acción Loves")
     Postconditions() # Llama a las postcondiciones de la acción "Loves"
     logging.info("Postcondiciones validadas de la acción Loves")
 
@@ -210,33 +209,48 @@ def storyMakesPrisioner (Hostage: Character, Kidnapping: Character):
     def Template():
         Text = f"One morning, {Kidnapping.Name} went to the {Hostage.Location} and abducted the {Hostage.Name}."
         saveFileHistory(Text) # Guarda el texto en el archivo History.txt
+        logging.info("Texto de la historia: " + Text)
 
     def Preconditions():
+        logging.info("Validar precondiciones de la acción Hace prisionero")
         # Validar si los personajes están en la misma ubicación o no
         if not locationValidation(Hostage.Location, Kidnapping.Location):
-            print(colorama.Fore.RED + "- Precondiciones, los personajes no están en el mismo lugar")
+            #print(colorama.Fore.RED + "- Precondiciones, los personajes no están en el mismo lugar")
+            logging.info("Precondiciones validadas, los personajes no están en el mismo lugar")
             return
 
     def Postconditions():
+        logging.info("Postcondiciones de la acción Hace prisionero")
         Kidnapping.Location = Hostage.Location
         Hostage.CaptivityStatus = "imprisoned"
+        logging.info("Ubicación del secuestrador: " + Kidnapping.Location)
+        logging.info("Estado de cautiverio del rehén: " + Hostage.CaptivityStatus)
         Template()
 
     Preconditions()
+    logging.info("Precondiciones validadas de la acción Hace prisionero")
     Postconditions()
+    
+
     
 # Función para realizar la acción de la historia "TakesCursedCave"
 def storyActionTakesCursedCave(Kidnapping: Character, Hostage: Character):
     def Template():
         Text = f"The {Kidnapping.Name} took the {Hostage.Name} to the Cursed Cave."
         saveFileHistory(Text)
+        logging.info("Texto de la historia: " + Text)
 
     def Preconditions():
+        logging.info("Sin precondiciones de la acción Lleva la cueva maldita")
         pass
 
     def Postconditions():
+        logging.info("Validar postcondiciones de la acción Lleva la cueva maldita")
         Kidnapping.Location = "Cursed Cave"
         Hostage.Location = "Cursed Cave"
+        logging.info("Ubicación del secuestrador: " + Kidnapping.Location)
+        logging.info("Ubicación del rehén: " + Hostage.Location)
+
 
     Preconditions()
     Postconditions()
@@ -252,16 +266,19 @@ def goalKidnappingHostage(Hostage , Characters):
         global Kidnapping
 
         if Kidnapping != None:
-            print(colorama.Fore.GREEN + "- Precondiciones validadas, el secuestrador existe")
+            #print(colorama.Fore.GREEN + "- Precondiciones validadas, el secuestrador existe")
+            logging.info("Precondiciones validadas, el secuestrador existe")
             return
         
-        print(colorama.Fore.RED + "- Precondiciones no validadas, el secuestrador no existe")
+        #print(colorama.Fore.RED + "- Precondiciones no validadas, el secuestrador no existe")
 
         global Guardian
+        logging.info("\t Precondición Instanciar personajes - Character-Guardian")
         Guardian = defineCharacter(Characters, "Location", "sacred lake")
         Guardian = Character(Guardian)
+        logging.info("\tGuardian definido: " + Guardian.Name)
 
-        print(colorama.Fore.RED + "- Guardian definido: " + Guardian.Name)
+        #print(colorama.Fore.RED + "- Guardian definido: " + Guardian.Name)
         
         # Remover el guardián de los personajes
         Characters.remove(Guardian.__dict__)
@@ -269,32 +286,47 @@ def goalKidnappingHostage(Hostage , Characters):
 
         Kidnapping = defineCharacter(Characters, "Personality", "horrendous")
         Kidnapping = Character(Kidnapping)
+        logging.info("\t Precondición Instanciar personajes - Character-Kidnapping")
+        logging.info("\tSecuestrador definido: " + Kidnapping.Name)
 
-        print(colorama.Fore.GREEN + "- - - Secuestrador definido: " + Kidnapping.Name)
+        #print(colorama.Fore.GREEN + "- - - Secuestrador definido: " + Kidnapping.Name)
+
+        logging.info("Precondiciones validadas, el secuestrador existe y el guardián también")
 
     def Plan():
         global statusGoalKidnappingHostage
+        logging.info("Planificación de la meta de la historia: Secuestrar al rehén")
         # ACT:
-        print(colorama.Fore.YELLOW + "- Planificar secuestro")
+        #print(colorama.Fore.YELLOW + "- Planificar secuestro")
+        logging.info("\t Acción del plan: Hacer prisionero")
         storyMakesPrisioner(Hostage, Kidnapping)
+        # ACT:
+        logging.info("\t Acción del plan: Lleva la cueva maldita")
         storyActionTakesCursedCave(Kidnapping, Hostage)
         statusGoalKidnappingHostage = True
 
 
+
     Preconditions()
     Plan()
+    logging.info("Meta de la historia completada: Secuestrar al rehén")
 
 # Función para realizar la acción de la historia "MovesToTheSameLocation"
 def storyActionMovesToTheSameLocation(CharacterThatMoves: Character, CharacterStatic: Character):
     def Template():
         Text = f"The {CharacterThatMoves.Name} went to talk to the {CharacterStatic.Name} to ask for help."
         saveFileHistory(Text)
+        logging.info("Texto de la historia: " + Text)
 
     def Preconditions():
+        logging.info("Sin precondiciones de la acción Moverse a la misma ubicación")
         pass
 
     def Postconditions():
+        logging.info("Postcondiciones de la acción Moverse a la misma ubicación")
         CharacterThatMoves.Location = CharacterStatic.Location
+        logging.info("Ubicación del personaje que se mueve: " + CharacterThatMoves.Location)
+
 
     Preconditions()
     Postconditions()
@@ -308,16 +340,21 @@ def storyActionAskForMagicGrass(Hero: Character, Informant: Character):
     def Template():
         Text = f"The {Informant.Name} agreed to provide the information in exchange for a cluster of magic grass than only grows in the sacred lake.\nThe {Hero.Name} went in search of the plant but the guardian of the lake barred { "Her" if Hero.Gender == "female" else "Him" } from entering.\nThe {Hero.Name} sang an ancestral song of supplication and the guardian of the lake allowed { "Her" if Hero.Gender == "female" else "Him" } to enter.\nThe {Hero.Name} took a bunch of magic grass.\nThe {Hero.Name} returned with the {Informant.Name}."
         saveFileHistory(Text)
+        logging.info("Texto de la historia: " + Text)
 
     def Preconditions():
         if Informant.ObjectThatTheCharacterOwns != "magic grass":
-            print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no tiene la hierba mágica")
+            #print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no tiene la hierba mágica")
+            logging.info("Precondiciones, el informante no tiene la hierba mágica")
             return
     
     def Postconditions():
+        logging.info("Postcondiciones de la acción Pide hierba mágica")
         Hero.ObjectThatTheCharacterOwns = "magic grass"
+        logging.info("Objeto que posee el héroe: " + Hero.ObjectThatTheCharacterOwns)
 
     Preconditions()
+    logging.info("Precondiciones validadas de la acción Pide hierba mágica")
     Postconditions()
     Template()
 
@@ -326,16 +363,21 @@ def storyActionAskForForetellingBones(Hero: Character, Informant: Character):
     def Template():
         Text = f"The {Informant.Name} agreed to provide the information in exchange for a cluster of foretelling bones.\nThe {Hero.Name} went in search of the bones but the guardian of the forest barred { "Her" if Hero.Gender == "female " else "Him" } from entering.\nThe {Hero.Name} sang an ancestral song of supplication and the guardian of the forest allowed {"Her" if Hero.Gender == "female " else "Him" } to enter.\nThe {Hero.Name} took a bunch of foretelling bones.\nThe {Hero.Name} returned with the {Informant.Name}."
         saveFileHistory(Text)
+        logging.info("Texto de la historia: " + Text)
 
     def Preconditions():
         if Informant.ObjectThatTheCharacterOwns != "foretelling bones":
             print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no tiene la hierba mágica")
+            logging.info("Precondiciones, el informante no tiene la hierba mágica")
             return
 
     def Postconditions():
+        logging.info("Postcondiciones de la acción Pide huesos de adivinación")
         Hero.ObjectThatTheCharacterOwns = "foretelling bones"
+        logging.info("Objeto que posee el héroe: " + Hero.ObjectThatTheCharacterOwns)
 
     Preconditions()
+    logging.info("Precondiciones validadas de la acción Pide huesos de adivinación")
     Postconditions()
     Template()
 
@@ -343,16 +385,21 @@ def storyActionAskForVeneratedBook(Hero: Character, Informant: Character):
     def Template():
         Text = f"The {Informant.Name} agreed to provide the information in exchange for a venerated book.\nThe {Hero.Name} went in search of the book but the guardian of the temple barred { "Her" if Hero.Gender == "female" else "Him" } from entering.\nThe {Hero.Name} sang an ancestral song of supplication and the guardian of the temple allowed {"Her" if Hero.Gender == "female" else "Him" } to enter.\nThe {Hero.Name} took the venerated book.\nThe {Hero.Name} returned with the {Informant.Name}."
         saveFileHistory(Text)
+        logging.info("Texto de la historia: " + Text)
 
     def Preconditions():
         if Informant.ObjectThatTheCharacterOwns != "venerated book":
-            print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no tiene el libro venerado")
+            #print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no tiene el libro venerado")
+            logging.info("Precondiciones, el informante no tiene el libro venerado")
             return
         
     def Postconditions():
+        logging.info("Postcondiciones de la acción Pide libro venerado")
         Hero.ObjectThatTheCharacterOwns = "venerated book"
+        logging.info("Objeto que posee el héroe: " + Hero.ObjectThatTheCharacterOwns)
 
     Preconditions()
+    logging.info("Precondiciones validadas de la acción Pide libro venerado")
     Postconditions()
     Template()
 
@@ -360,16 +407,21 @@ def storyActionAskForMagicSword(Hero: Character, Informant: Character):
     def Template():
         Text = f"The {Informant.Name} agreed to provide the information in exchange for a magic sword.\nThe {Hero.Name} went in search of the sword but the guardian of the mountain barred { "Her" if Hero.Gender == "female" else "Him" } from entering.\nThe {Hero.Name} sang an ancestral song of supplication and the guardian of the mountain allowed {"Her" if Hero.Gender == "female" else "Him" } to enter.\nThe {Hero.Name} took the magic sword.\nThe {Hero.Name} returned with the {Informant.Name}."
         saveFileHistory(Text)
+        logging.info("Texto de la historia: " + Text)
 
     def Preconditions():
         if Informant.ObjectThatTheCharacterOwns != "magic sword":
-            print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no tiene la espada mágica")
+            #print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no tiene la espada mágica")
+            logging.info("Precondiciones, el informante no tiene la espada mágica")
             return
         
     def Postconditions():
+        logging.info("Postcondiciones de la acción Pide espada mágica")
         Hero.ObjectThatTheCharacterOwns = "magic sword"
+        logging.info("Objeto que posee el héroe: " + Hero.ObjectThatTheCharacterOwns)
 
     Preconditions()
+    logging.info("Precondiciones validadas de la acción Pide espada mágica")
     Postconditions()
     Template()
 
@@ -378,38 +430,50 @@ def storyActionGivesReward(Hero: Character, Informant: Character):
     def Template():
         Text = f"The {Hero.Name} handed to the {Informant.Name} the {Hero.ObjectThatTheCharacterOwns}."
         saveFileHistory(Text)
+        logging.info("Texto de la historia: " + Text)
+
 
     def Preconditions():
+        logging.info("Sin precondiciones de la acción Da recompensa")
         pass
         
     def Postconditions():
+        logging.info("Postcondiciones de la acción Da recompensa")
         Informant.ObjectThatTheCharacterOwns = Hero.ObjectThatTheCharacterOwns
         Hero.ObjectThatTheCharacterOwns = "none"
+        logging.info("Objeto que posee el informante: " + Informant.ObjectThatTheCharacterOwns)
+        logging.info("Objeto que posee el héroe: " + Hero.ObjectThatTheCharacterOwns)
 
     Preconditions()
     Template()
     Postconditions()
+
     
 # Función para realizar la meta de la historia "HeroRewardsInformant"
 def goalHeroRewardsInformant(Hero: Character, Informant: Character):
     #global Hero
     #global Informant
     def Preconditions():
+        logging.info("Validar precondiciones de la meta de la historia: Heroe recompensa al informante")
         # SYS:
 
         if Informant.Name == "sorcerer":
-            print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es el hechicero")
+            logging.info("Precondiciones validadas, el informante es el hechicero")
+            #print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es el hechicero")
             storyActionAskForMagicGrass(Hero, Informant)
             return
         elif Informant.Name == "soothsayer":
-            print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es el adivino")
+            logging.info("Precondiciones validadas, el informante es el adivino")
+            #print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es el adivino")
             storyActionAskForForetellingBones(Hero, Informant)
             return
         elif Informant.Name == "priest": # NOTA EL PERSONAJE SACERDOTE NUNCA CUMPLE CON LAS CONDICIONES
-            print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es el sacerdote")
+            logging.info("Precondiciones validadas, el informante es el sacerdote")
+            #print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante es el sacerdote")
             storyActionAskForVeneratedBook(Hero, Informant)
             return
         elif Informant.Name == "old mysterious lady":
+            logging.info("Precondiciones validadas, el informante es la vieja misteriosa")
             print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante no es el hechicero, adivino o sacerdote")
             storyActionAskForMagicSword(Hero, Informant)
             return
@@ -418,6 +482,8 @@ def goalHeroRewardsInformant(Hero: Character, Informant: Character):
     def Plan():
         #global Hero
         #global Informant
+
+        logging.info("Planificación de la meta de la historia: Heroe recompensa al informante")
         global statusGoalHeroRewardsInformant
 
         storyActionGivesReward(Hero, Informant)
@@ -426,18 +492,23 @@ def goalHeroRewardsInformant(Hero: Character, Informant: Character):
     
     Preconditions()
     Plan()
+    logging.info("Meta de la historia completada: Heroe recompensa al informante")
 
 # Función para realizar la acción de la historia "GetsTheLocationOfTheHostageFrom"
 def storyActionGetsTheLocationOfTheHostageFrom(Hero: Character, Informant: Character, Hostage: Character):
     def Template():
         Text = f"The {Informant.Name} revealed to the {Hero.Name} the {Hostage.Name}'s location."
         saveFileHistory(Text)
+        logging.info("Texto de la historia: " + Text)
 
     def Preconditions():
+        logging.info("Sin precondiciones de la acción Obtiene la ubicación del rehén")
         pass
 
     def Postconditions():
+        logging.info("Postcondiciones de la acción Obtiene la ubicación del rehén")
         Hero.LocationThatTheCharacterLearns = Hostage.Location
+        logging.info("Ubicación que el personaje aprende: " + Hero.LocationThatTheCharacterLearns)
 
     Preconditions()
     Template()
@@ -448,14 +519,17 @@ def storyActionGetsInstructionsToRescueHostageFrom (Hero: Character, Informant: 
     def Template():
         Text = f"The {Informant.Name} gave to the {Hero.Name} a spell to put the {Kidnapping.Name} to sleep."
         saveFileHistory(Text)
+        logging.info("Texto de la historia: " + Text)
 
     def Preconditions():
-        
+        logging.info("Validar precondiciones de la acción Obtiene instrucciones para rescatar al rehén")
         if Hostage.CaptivityStatus == "imprisoned":
-            print(colorama.Fore.GREEN + "- Precondiciones validadas, el rehén está prisionero")
+            #print(colorama.Fore.GREEN + "- Precondiciones validadas, el rehén está prisionero")
+            logging.info("Precondiciones validadas, el rehén está prisionero")
             return
         
     def Postconditions():
+        logging.info("Postcondiciones de la acción Obtiene instrucciones para rescatar al rehén")
         Hero.InstructionsToPerform = "performs the rescue plan The spell"
     
     Preconditions()
@@ -472,16 +546,20 @@ def goalHeroFindsInformant ():
         global Informant
         global Hostage
 
+        logging.info("Validar precondiciones de la meta de la historia: Heroe encuentra al informante")
+
         if Informant != None:
-            print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante existe")
+            #print(colorama.Fore.GREEN + "- Precondiciones validadas, el informante existe")
+            logging.info("Precondiciones validadas, el informante existe")
             return
 
-        print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no existe")
+        #print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no existe")
         
 
         Informant = defineCharacter(Characters, "ReliableSourceOfInformation", "yes")
 
         Informant = Character(Informant)
+        logging.info("Informante definido: " + Informant.Name)
 
         # NOTA EL INFORMANTE NO PUEDE SER EL REHEN (LA VIEJA MISTERIOSA PUEDE APAECER COMO INFORMANTE Y REHEN)
         """if Informant.Name == Hostage.Name:
@@ -491,30 +569,35 @@ def goalHeroFindsInformant ():
             Informant = Character(Informant)"""
     
 
-        print(colorama.Fore.GREEN + "- - - Informante definido: " + Informant.Name)
+        #print(colorama.Fore.GREEN + "- - - Informante definido: " + Informant.Name)
 
         # Eliminar al informante de los personajes
         Characters.remove(Informant.__dict__)
 
         # ACT:
+        logging.info("Precondión de la acción: Moverse a la misma ubicación")
         storyActionMovesToTheSameLocation(Hero, Informant)
 
         # NOTA: SE AGREGO FIENDLY PARA QUE EL SACERDOTE TAMBIEN LANZE LA ACCION DE DAR RECOMPENSA
         if Informant.Personality == "mean" or Informant.Personality == "horrendous" or Informant.Personality == "friendly":
             # GOAL:
-            print(colorama.Fore.YELLOW + "- ")
-            Informant.print_details()
+            #print(colorama.Fore.YELLOW + "- ")
+            #Informant.print_details()
+            logging.info("Meta: Recompensar al informante, la meta actual se pone en pausa")
             goalHeroRewardsInformant(Hero, Informant)
 
     def Plan():
+
         global Hero
         global Informant
         global Hostage
         global Kidnapping
         global statusGoalHeroFindsInformant
+        logging.info("Planificación de la meta de la historia: Heroe encuentra al informante")
         # ACT:
         storyActionGetsTheLocationOfTheHostageFrom(Hero, Informant, Hostage)
         # ACT:
+        logging.info("Acción del plan: Obtiene instrucciones para rescatar al rehén")
         storyActionGetsInstructionsToRescueHostageFrom(Hero, Informant, Hostage, Kidnapping)
 
         statusGoalHeroFindsInformant = True
@@ -523,18 +606,24 @@ def goalHeroFindsInformant ():
 
     Preconditions()
     Plan()	
+    logging.info("Meta de la historia completada: Heroe encuentra al informante")
 
 # Función para realizar la acción de la historia "MovesTheLocationThatTheCharacterLearns"
 def storyActionMovesTheLocationThatTheCharacterLearns(CharacterThatChangesPostion: Character):
     def Template():
         Text = f"Wasting no time, the {CharacterThatChangesPostion.Name} went to the {CharacterThatChangesPostion.LocationThatTheCharacterLearns}."
         saveFileHistory(Text)
+        logging.info("Texto de la historia: " + Text)
 
     def Preconditions():
+        logging.info("Sin precondiciones de la acción Mueve la ubicación que el personaje aprende")
         pass
 
     def Postconditions():
+        logging.info("Postcondiciones de la acción Mueve la ubicación que el personaje aprende")
         CharacterThatChangesPostion.Location = CharacterThatChangesPostion.LocationThatTheCharacterLearns
+        logging.info("Ubicación del personaje: " + CharacterThatChangesPostion.Location)
+
 
     Preconditions()
     Template()
@@ -555,14 +644,18 @@ def storyActionPerformsTheRescuePlanTheSpell():
         saveFileHistory(Text)
 
     def Preconditions():
+        logging.info("Validar precondiciones de la acción Realiza el plan de rescate El hechizo")
         global Hostage
         if Hostage.CaptivityStatus == "imprisoned" : 
-            print(colorama.Fore.GREEN + "- Precondiciones validadas, el rehén está prisionero")
+            #print(colorama.Fore.GREEN + "- Precondiciones validadas, el rehén está prisionero")
+            logging.info("Precondiciones validadas, el rehén está prisionero")
             return
 
     def Postconditions():
+        logging.info("Postcondiciones de la acción Realiza el plan de rescate El hechizo")
         global Hostage
         Hostage.CaptivityStatus = "free"
+        logging.info("Estado de cautiverio del rehén: " + Hostage.CaptivityStatus)
 
     Preconditions()
     
@@ -572,10 +665,12 @@ def storyActionPerformsTheRescuePlanTheSpell():
 # Función para realizar la acción de la historia "ExecuteInstructionsToPerform"
 def storyActionExecuteInstructionsToPerform(CharacterExecuter: Character):
     def Preconditions():
+        logging.info("Sin precondiciones de la acción Ejecuta instrucciones para realizar")
         pass
 
     def Postconditions():
-        print ("Intructions: " + CharacterExecuter.InstructionsToPerform)
+        logging.info("Postcondiciones de la acción Ejecuta instrucciones para realizar")
+        #print ("Intructions: " + CharacterExecuter.InstructionsToPerform)
         storyActionPerformsTheRescuePlanTheSpell()
 
     Preconditions()
@@ -590,17 +685,23 @@ def goalHeroLiberatesHostage ():
     def Preconditions():
         # GOAL:
         # The hero finds an informant that provides the location of the Hostage and the instructions to rescue him.
+        logging.info("Validar precondiciones de la meta de la historia: Heroe libera al rehen")
+        logging.info("Meta: El heroe encuentra un informante que proporciona la ubicación del rehen y las instrucciones para rescatarlo")
+        logging.info("La meta: Heroe libera al rehen se pone en pausa hasta que se cumpla la meta: El heroe encuentra un informante que proporciona la ubicación del rehen y las instrucciones para rescatarlo")
         goalHeroFindsInformant()
         pass
 
     def Plan():
+
         global Hero
         global statusGoalHeroLiberatesHostage
 
         # ACT:
+        logging.info("Planificación de la meta de la historia: Heroe libera al rehen")
         storyActionMovesTheLocationThatTheCharacterLearns(Hero)
 
         # ACT:
+        logging.info("Acción del plan: Ejecuta instrucciones para realizar")
         storyActionExecuteInstructionsToPerform(Hero)
 
         statusGoalHeroLiberatesHostage = True
@@ -609,6 +710,7 @@ def goalHeroLiberatesHostage ():
 
     Preconditions()
     Plan()
+    logging.info("Meta de la historia completada: Heroe libera al rehen")
 
 # Función para realizar la meta conductora de la historia "HeroDecideRescueHostage"
 def goalHeroDecideRescueHostage(Characters):
@@ -641,24 +743,24 @@ def goalHeroDecideRescueHostage(Characters):
         global Hostage
 
         logging.info("Validar precondiciones: ")
-        logging.info(f"\tInstanciar personajes - Character-Hero y Character-Hostage")
-        print(colorama.Fore.YELLOW +  "- Validar precondiciones ")
+        logging.info(f"\t Precondición Instanciar personajes - Character-Hero y Character-Hostage")
+        #print(colorama.Fore.YELLOW +  "- Validar precondiciones ")
 
         if Hero != None and Hostage != None:
-            print(colorama.Fore.GREEN + "Precondiciones validadas, los personajes existen")
+            #print(colorama.Fore.GREEN + "Precondiciones validadas, los personajes existen")
             logging.info("Precondiciones validadas, los personajes existen")
             return
         
-        print (colorama.Fore.RED + "- - Precondiciones no validadas, los personajes no existen")
+        #print (colorama.Fore.RED + "- - Precondiciones no validadas, los personajes no existen")
         # *Character-Hero is 
         Hero = defineCharacter(Characters,"Personality", "brave")
         Hero = Character(Hero)
-        print (colorama.Fore.GREEN + "- - - Heroe definido: " + Hero.Name)
+        #print (colorama.Fore.GREEN + "- - - Heroe definido: " + Hero.Name)
 
         # *Character-Hostage is
         Hostage = defineCharacter(Characters,"Personality", "friendly")
         Hostage = Character(Hostage)
-        print (colorama.Fore.GREEN + "- - - Rehen definido: " + Hostage.Name)
+        #print (colorama.Fore.GREEN + "- - - Rehen definido: " + Hostage.Name)
 
         logging.info("Personajes instanciados correctamente")
         logging.info("Heroe: " + Hero.Name)
@@ -673,11 +775,11 @@ def goalHeroDecideRescueHostage(Characters):
         InitTextHistory()
 
         # ACT Character hero loves Character hostage:
-        logging.info(f"\tAcción de la historia: Loves")
+        logging.info(f"\tPrecondición: Acción de la historia: Loves")
         storyActionLoves(Hero, Hostage)
 
         # GOAL KidnappingHostage:
-        logging.info(f"\tMeta de la historia: KidnappingHostage")
+        logging.info(f"\tPrecondición: Meta: Secuestrar al Rehén, la meta conductora se pone en pausa")
         goalKidnappingHostage(Hostage, Characters)
 
     def Plan():
@@ -688,17 +790,19 @@ def goalHeroDecideRescueHostage(Characters):
         global statusGoalKidnappingHostage
         
         if statusGoalKidnappingHostage == True:
-            print(colorama.Fore.YELLOW + "- Planificar rescate")
+            #print(colorama.Fore.YELLOW + "- Planificar rescate")
+
             goalHeroLiberatesHostage()
             statusGoalHeroDecideRescueHostage = True
             logging.info("Meta de la historia completada: El heroe decide rescatar al rehen")
 
         pass
 
-    print (colorama.Fore.RED + "* Instanciar meta principal")
+    #print (colorama.Fore.RED + "* Instanciar meta principal")
     Preconditions()
     logging.info("Precondiciones validadas de la meta conductora El heroe decide rescatar al rehen")
     Plan()
+    logging.info("Meta conductora de la historia completada: El heroe decide rescatar al rehen")
     
 
 # Llama a la función para realizar la meta conductora de la historia "HeroDecideRescueHostage"
@@ -715,10 +819,12 @@ def read_file(file_path):
 file_content = read_file("History.txt") # Lee el contenido del archivo History.txt
 print(colorama.Fore.MAGENTA + "\n Historia en Ingles: ")
 print(file_content ) # Imprime el contenido del archivo History.txt
+logging.info("Texto de la historia en Ingles " + file_content)
 
 Text_Translate = translate_text(file_content) # Traduce el contenido del archivo History.txt al español
 print(colorama.Fore.GREEN + "\n Historia en Español:")
 print(Text_Translate) # Imprime la traducción de la historia
+logging.info("Texto de la historia en Español " + Text_Translate)
 
 # Función para convertir texto a voz con el motor de texto a voz pyttsx3
 def VoiceText(Text):
@@ -783,22 +889,28 @@ def UpgradeIA(Text):
 NewHistory = Text_Translate # Guarda la historia traducida al español en una nueva variable NewHistory
 
 
-print(statusGoalHeroDecideRescueHostage) # Imprime el estado de la meta conductora
+#print(statusGoalHeroDecideRescueHostage) # Imprime el estado de la meta conductora
 
 # Imprime los modos de funcionamiento de la IA y la voz del narrador
 if ModeIA == 1: # Si el modo de IA está activado
-    print("Modo de IA encendida")
+    print("\nModo de IA encendida")
+    logging.info("Modo de IA encendida")
     NewHistory = UpgradeIA(NewHistory)
-    print(colorama.Fore.CYAN + "\n Historia Mejorada: ")
+    #print(colorama.Fore.CYAN + "\n Historia Mejorada: ")
     print(NewHistory)
+    logging.info("Texto de la historia mejorada " + NewHistory)
 else:
-    print("Modo de IA apagada")
+    print("\nModo de IA apagada")
+    logging.info("Modo de IA apagada")
 
 if ModeVoice == 1: # Si el modo de voz está activado
-    print("Modo de voz encendida")
+    logging.info("Modo de voz encendida")
+    print("\nModo de voz encendida")
     VoiceText(NewHistory)
+
 else:
-    print("Modo de voz apagada")
+    print("\nModo de voz apagada")
+    logging.info("Modo de voz apagada")
 
 
 
