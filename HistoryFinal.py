@@ -367,7 +367,7 @@ def storyActionAskForForetellingBones(Hero: Character, Informant: Character):
 
     def Preconditions():
         if Informant.ObjectThatTheCharacterOwns != "foretelling bones":
-            print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no tiene la hierba mágica")
+            #print(colorama.Fore.RED + "- Precondiciones no validadas, el informante no tiene la hierba mágica")
             logging.info("Precondiciones, el informante no tiene la hierba mágica")
             return
 
@@ -817,13 +817,13 @@ def read_file(file_path):
     return content
 
 file_content = read_file("History.txt") # Lee el contenido del archivo History.txt
-print(colorama.Fore.MAGENTA + "\n Historia en Ingles: ")
-print(file_content ) # Imprime el contenido del archivo History.txt
+#print(colorama.Fore.MAGENTA + "\n Historia en Ingles: ")
+#print(file_content ) # Imprime el contenido del archivo History.txt
 logging.info("Texto de la historia en Ingles " + file_content)
 
 Text_Translate = translate_text(file_content) # Traduce el contenido del archivo History.txt al español
-print(colorama.Fore.GREEN + "\n Historia en Español:")
-print(Text_Translate) # Imprime la traducción de la historia
+#print(colorama.Fore.GREEN + "\n Historia en Español:")
+#print(Text_Translate) # Imprime la traducción de la historia
 logging.info("Texto de la historia en Español " + Text_Translate)
 
 # Función para convertir texto a voz con el motor de texto a voz pyttsx3
@@ -893,24 +893,34 @@ NewHistory = Text_Translate # Guarda la historia traducida al español en una nu
 
 # Imprime los modos de funcionamiento de la IA y la voz del narrador
 if ModeIA == 1: # Si el modo de IA está activado
-    print("\nModo de IA encendida")
+    
     logging.info("Modo de IA encendida")
     NewHistory = UpgradeIA(NewHistory)
     #print(colorama.Fore.CYAN + "\n Historia Mejorada: ")
-    print(NewHistory)
+    #print(colorama.Fore.CYAN + "\n Historia Mejorada: " + NewHistory) # Imprime la historia mejorada
+    #print(NewHistory)
     logging.info("Texto de la historia mejorada " + NewHistory)
+
 else:
-    print("\nModo de IA apagada")
+    #print("\nModo de IA apagada")
     logging.info("Modo de IA apagada")
+    #print("\nTexto de la historia: ")
+    #print(NewHistory)
+    #logging.info("Texto de la historia " + NewHistory)
 
 if ModeVoice == 1: # Si el modo de voz está activado
     logging.info("Modo de voz encendida")
-    print("\nModo de voz encendida")
-    VoiceText(NewHistory)
+    #print("\nModo de voz encendida")
+    #VoiceText(NewHistory)
+    #print(colorama.Fore.CYAN + "\nTexto de la historia: ")
+    print(NewHistory)
+    logging.info("Texto de la historia " + NewHistory)
 
 else:
-    print("\nModo de voz apagada")
+    #print("\nModo de voz apagada")
     logging.info("Modo de voz apagada")
+    #print("\nTexto de la historia: ")
+    print(NewHistory)
 
 
 
