@@ -11,7 +11,7 @@ class StoryGeneratorGUI:
         self.master = master
         master.title("Generador de Historias Mágicas")
         master.geometry("900x600")
-        master.configure(bg="#f0f0f0")
+        master.configure(bg="#2C3E50")  # Fondo oscuro para contraste
 
         # Cargar la fuente personalizada
         self.load_custom_font()
@@ -24,59 +24,88 @@ class StoryGeneratorGUI:
 
         # Configurar fuentes
         default_font = Font(family="Product Sans", size=11)
-        title_font = Font(family="Product Sans", size=18, weight="bold")
-        button_font = Font(family="Product Sans", size=12, weight="bold")
+        title_font = Font(family="Product Sans", size=24, weight="bold")
+        button_font = Font(family="Product Sans", size=14, weight="bold")
 
         # Estilos
         self.style = ttk.Style()
         self.style.theme_use("clam")
-        self.style.configure("TFrame", background="#f0f0f0")
-        self.style.configure("TButton", 
-                             background="#4CAF50", 
+        
+        # Estilo para TFrame
+        self.style.configure("Custom.TFrame", 
+                             background="#34495E",
+                             borderwidth=0,
+                             relief="flat")
+        
+        # Estilo para TButton
+        self.style.configure("Custom.TButton", 
+                             background="#3498DB", 
                              foreground="white", 
                              font=button_font,
-                             padding=10)
-        self.style.map("TButton", 
-                       background=[("active", "#45a049")])
-        self.style.configure("TCheckbutton", 
-                             background="#f0f0f0", 
+                             padding=10,
+                             borderwidth=0,
+                             relief="flat",)
+        self.style.map("Custom.TButton", 
+                       background=[("active", "#2980B9")])
+        
+        # Estilo para Checkbuttons
+        self.style.configure("Custom.TCheckbutton",
+                             background="#34495E",
+                             foreground="#ECF0F1",
                              font=default_font)
-        self.style.configure("TLabel", 
-                             background="#f0f0f0", 
+        self.style.map("Custom.TCheckbutton",
+                       background=[("active", "#34495E")],
+                       foreground=[("active", "#3498DB")])
+        
+        self.style.configure("Custom.TLabel", 
+                             background="#34495E", 
+                             foreground="#ECF0F1",
                              font=default_font)
 
         # Frame principal
-        main_frame = ttk.Frame(master, padding="20")
+        main_frame = ttk.Frame(master, padding="20", style="Custom.TFrame")
         main_frame.place(relx=0.5, rely=0.5, anchor="center")
 
-        # Título
+        # Título con efecto de sombra
+        title_shadow = tk.Label(main_frame, 
+                                text="Generador de Historias Mágicas", 
+                                font=title_font, 
+                                bg="#34495E", 
+                                fg="#2C3E50")
+        title_shadow.grid(row=0, column=0, pady=(0, 2))
         title = tk.Label(main_frame, 
                          text="Generador de Historias Mágicas", 
                          font=title_font, 
-                         bg="#f0f0f0", 
-                         fg="#333333")
-        title.grid(row=0, column=0, pady=(0, 20))
+                         bg="#34495E", 
+                         fg="#ECF0F1")
+        title.grid(row=0, column=0, pady=(0, 5))
 
         # Frame para opciones
-        options_frame = ttk.Frame(main_frame, padding="10")
-        options_frame.grid(row=1, column=0)
+        options_frame = ttk.Frame(main_frame, padding="10", style="Custom.TFrame")
+        options_frame.grid(row=1, column=0, pady=10)
 
-        ttk.Label(options_frame, text="Opciones:").grid(row=0, column=0, pady=5)
+        ttk.Label(options_frame, text="Opciones:", style="Custom.TLabel").grid(row=0, column=0, pady=2, sticky="w")
 
         self.voice_var = tk.IntVar(value=1)
-        ttk.Checkbutton(options_frame, text="Activar voz", variable=self.voice_var).grid(row=1, column=0)
+        voice_check = ttk.Checkbutton(options_frame, text="Activar voz", variable=self.voice_var, style="Custom.TCheckbutton")
+        voice_check.grid(row=1, column=0, sticky="w", pady=5)
 
         self.ia_var = tk.IntVar(value=1)
-        ttk.Checkbutton(options_frame, text="Activar mejora IA", variable=self.ia_var).grid(row=2, column=0)
+        ia_check = ttk.Checkbutton(options_frame, text="Activar mejora IA", variable=self.ia_var, style="Custom.TCheckbutton")
+        ia_check.grid(row=2, column=0, sticky="w", pady=5)
 
         # Botón para generar la historia
-        self.generate_button = ttk.Button(main_frame, text="Generar Historia Mágica", command=self.generate_story)
-        self.generate_button.grid(row=2, column=0, pady=20)
+        self.generate_button = ttk.Button(main_frame, text="Generar Historia Mágica", command=self.generate_story, style="Custom.TButton")
+        self.generate_button.grid(row=2, column=0, pady=10)
 
         # Área de texto para mostrar la historia
         self.story_text = scrolledtext.ScrolledText(main_frame, wrap=tk.WORD, width=60, height=12, font=default_font)
         self.story_text.grid(row=3, column=0, pady=10)
-        self.story_text.configure(bg="#ffffff", fg="#333333")
+        self.story_text.configure(bg="#ECF0F1", fg="#2C3E50")
+
+        # Poner el autor en la parte inferior
+        ttk.Label(main_frame, text="Creado por: Williams Chan", style="Custom.TLabel").grid(row=4, column=0, pady=0)
+
 
     def load_custom_font(self):
         font_path = "/Font/ProductSans.ttf"  # Reemplaza esto con la ruta real a tu archivo .ttf
